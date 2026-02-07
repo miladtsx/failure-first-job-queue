@@ -1,0 +1,62 @@
+# Scope 
+
+This project intentionally models a *narrow class of systems** in order to study failure, state corruption, and recovery behavior with precision.
+
+Breadth is explicitly rejected in favor of depth.
+
+--- 
+
+## In scope 
+
+This system models: 
+
+- Asynchronous job processing
+- At-least-once delivery semantics 
+- Duplicate job execution
+- Partial execution and partial writes 
+- Worker crashes during execution 
+- Retry behavior and retry storms 
+- Recovery after downtime 
+- State reconciliation after failure 
+
+The focus is on **correctness under failure**, not performance or scale.
+
+--- 
+
+## Out of scope 
+
+The following are intentionally excluded:
+
+- Performance optimization
+- Horizontal scaling 
+- High availability guarantees 
+- Load balancing strategies 
+- UI or dashboards 
+- Authorization and authentication 
+- Network-level participations (initially)
+- Consensus algorithms
+- Exactly-once delivery claims 
+
+These concerns are excluded because they **obscure failure behavior** rather than clarify it.
+
+--- 
+
+## Design constraints 
+
+Every failure added to this system must satisfy **at least one** of the following:
+
+- Introduce a new failure mode 
+- Detect an existing failure mode 
+- Prevent state corruption 
+- Enable safe recovery 
+
+If a feature does not serve one of these goals, it does not belong in this project.
+
+--- 
+
+## Guiding assumption
+
+Failure is not an exception.
+
+Failure is the **normal operating condition** under which the system must remain correct.
+
