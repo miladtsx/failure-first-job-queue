@@ -67,7 +67,7 @@ For every known failure:
 
 --- 
 
-## Invariant discipline
+# Invariant discipline
 
 - Every failure mode must reference the invariant(s) it violates 
 - Every test must assert invariant preservation 
