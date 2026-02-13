@@ -1,4 +1,4 @@
-# failure-first-job-queue
+# Autonomous Task Execution Engine — Failure Modeling Lab
 
 This repository explores how distributed job processing systems fail — and how to design them so failures are **detectable, recoverable, and non-destructive**.
 
@@ -19,7 +19,27 @@ They are caused by **ordinary failures** interacting with:
 
 This project treats failure as the **primary design input**, not an afterthought. 
 
---- 
+---
+
+## Governance Lab overview
+
+### What this lab is
+
+A minimalist lab describing how autonomous task execution systems break down when retries, persistence, crashes, and partial updates interact without explicit invariant tracking. It mixes a working prototype, reproducible postmortems, and documented failure modes so investigators can reason through what happened and why a recovery path existed (or didn’t).
+
+### What it is not
+
+This is not a production scheduler, performance benchmark, or fully featured platform. It does not aim to replace a framework or teach distributed systems from scratch—its purpose is to expose failure and resilience trade-offs before any production-scale rollout.
+
+### Why autonomy systems fail
+
+Autonomy fails when systems assume reliability: jobs get retried without idempotency, state updates are partial, crashes leave queues in limbo, and operators lack visibility into invariant breaches. These ordinary failures cascade because guards and governance mechanisms are missing, not because a new-edge bug crept in.
+
+### What “governance” means here
+
+“Governance” in this lab is the set of defensive rules, crash recovery flows, and invariant assertions that let a team detect and respond to failures safely. It includes observable failure modes, documented recovery playbooks, and policies that orchestrate retries or compensating actions rather than simply hoping for success.
+
+---
 
 # What this system models 
 
