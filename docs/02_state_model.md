@@ -1,6 +1,37 @@
 # State Model 
 
-This document defines the minimum state required to enforce the invariants in `01-invariants.md` and to model failures like `FM-001`.
+This document defines the minimum state required to enforce the invariants in [`01_invariants.md`](./01_invariants.md) and to model failures like `FM_001`.
+
+---
+
+## State Schematic
+
+```mermaid
+flowchart TD
+  Submit["Submit a Job"] --> JP["Job: PENDING"]
+  JP -- "lease acquired" --> JR["Job: RUNNING"]
+  JR --> EL["Execution: LEASED<br>(exec_id, lease_expires_at)"]
+  EL -->|start| IP[IN_PROGRESS]
+  IP --> C{Commit boundary?}
+  C -->|yes| CM["COMMITTED<br/>apply effect once"]
+  CM --> DN[DONE]
+  DN --> JS["Job: SUCCEEDED"]
+
+  %% Failure branches
+  C -->|timeout/crash| AB[ABORTED]
+  EL -->|lease expires| AB
+  AB --> JR
+  JR -- "lease expires & no COMMITTED" --> JP
+
+  %% Duplicate lease while a COMMITTED exists must short-circuit (no effect)
+  JR -. "duplicate lease" .-> CM
+```
+
+Key boundaries:
+- **COMMITTED** is the only point where side effects may occur.
+- Job state is derived from durable execution records, never guessed.
+
+For the canonical non-failure flow, see [`docs/04_happy_path.md`](./04_happy_path.md).
 
 The system assumes **at-least-once delivery**. Duplicate delivery is expected.
 
@@ -33,23 +64,23 @@ Minimum fields:
 - `started_at`, `finished_at` (timestamps, nullable)
 
 Executions are durable records used for:
-- idempotency (INV-001)
-- crash consistency (INV-002)
-- auditability (INV-003)
-- recovery (INV-004)
+- idempotency (INV_001)
+- crash consistency (INV_002)
+- auditability (INV_003)
+- recovery (INV_004)
 
 --- 
 
 ## Job States 
 
-Job state is a coarse, user-facing view:
+Job state is a coarse, user-facing view **derived from executions** (aggregate projection, not an independent source of truth):
 
 - `PENDING` : created, not yet leased 
 - `RUNNING` : leased by some execution 
 - `SUCCEEDED` : completed successfully
 - `FAILED` : terminal failure 
 
-Job state must be derived from durable execution state, not assumed.
+Job state is computed from the set of execution records; we never mutate job state directly without an execution event.
 
 --- 
 
@@ -69,9 +100,17 @@ Execution status is the internal, durable source of truth:
 
 --- 
 
+## Relationship of the two state machines
+
+- The **execution state machine** is the authoritative, durable record (`LEASED → IN_PROGRESS → COMMITTED → DONE`, with failure `→ ABORTED`).
+- The **job state machine** is an aggregate projection over executions (`PENDING ↔ RUNNING → SUCCEEDED/FAILED`). A job moves only when executions change; jobs have no direct transitions of their own.
+- "Derived/aggregate" means job state is a pure function of execution rows (e.g., lease acquisition sets RUNNING; lease expiry with no COMMITTED reverts to PENDING; any DONE after COMMITTED yields SUCCEEDED).
+
+--- 
+
 ## Allowed Transactions 
 
-### Execution transactions 
+### Execution level transactions (Happy path)
 
 - `LEASED` -> `IN_PROGRESS`
 - `IN_PROGRESS` -> `COMMITTED`
@@ -85,7 +124,7 @@ Failure paths:
 A worker may only progress an execution it currently leases.
 
 
-### Job transitions (derived) 
+### Job level transitions (derived) 
 
 - `PENDING` -> `RUNNING` when an execution is LEASED 
 - `RUNNING` -> `SUCCEEDED` when any execution reaches DONE (after COMMITTED)
@@ -93,7 +132,7 @@ A worker may only progress an execution it currently leases.
 
 --- 
 
-## Idempotency rule (INV-001)
+## Idempotency rule (INV_001)
 
 For a given `job_id`: 
 
@@ -107,7 +146,7 @@ Implementation options (later):
 
 --- 
 
-## Crash consistency rule (INV-002)
+## Crash consistency rule (INV_002)
 
 Work must be structured into two phases:
 
@@ -128,14 +167,14 @@ If crash happens after COMMITTED but before DONE:
 
 --- 
 
-## How FM-001 happens in this model 
+## How FM_001 happens in this model 
 
 - Worker A leases `exec_id=A1` and starts work 
 - Lease expires (timeout), system creates `exec_id=B1`
 - Worker B leases `B1` and runs the same job 
 - without the COMMITTED idempotency boundary, both apply effects 
 
-FM-001 is prevented by enforcing:
+FM_001 is prevented by enforcing:
 - single COMMITTED execution per job_id 
 - duplicate executions short-circuit at commit time 
 
@@ -149,4 +188,4 @@ To keep scope tight, v0 requires only:
 - leasing with timeouts 
 - a committed marker 
 - a worker that can be killed mid-job 
-- tests that reproduce FM-001 and prove the fix 
+- tests that reproduce FM_001 and prove the fix 

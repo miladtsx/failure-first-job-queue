@@ -1,6 +1,6 @@
 # Scope 
 
-This project intentionally models a *narrow class of systems** in order to study failure, state corruption, and recovery behavior with precision.
+We intentionally models a *narrow class of systems** in order to study failure, state corruption, and recovery behavior with precision.
 
 Breadth is explicitly rejected in favor of depth.
 
@@ -49,8 +49,6 @@ Every failure added to this system must satisfy **at least one** of the followin
 - Detect an existing failure mode 
 - Prevent state corruption 
 - Enable safe recovery 
-
-If a feature does not serve one of these goals, it does not belong in this project.
 
 --- 
 

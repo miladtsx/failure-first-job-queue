@@ -7,29 +7,31 @@ If an invariant is violated, the system is considered incorrect -- even if it ap
 
 --- 
 
-## INV-001 -- Job execution is logically idempotent 
+## INV_001 -- Job execution is logically idempotent 
 
 A job may be delivered or executed more than once, but its **logical effect** must be applied at most once.
 
 - Duplicate execution must not corrupt state 
 - Duplicate execution must not amplify side effects 
 - Idempotency must be enforced explicitly, not assumed
+- Job-level completion is **derived** from execution records (see `02_state_model.md`); we do not mutate job state independently of executions.
 
 --- 
 
-## INV-002 -- Partial execution must not leave irreversible damage 
+## INV_002 -- Partial execution must not leave irreversible damage 
 
 If a worker crashes mid-execution:
 
 - The system must be able to detect partial progress 
 - The system must be able to safely resume or compensate 
 - No irreversible action may occur without durable confirmation
+- Observability comes from the durable execution state machine; job state is an aggregate projection over those records, ensuring crashes are detectable without guessing job status.
 
 Crash consistency is mandatory.
 
 --- 
 
-## INV-003 -- Job state transitions are monotonic and explicit 
+## INV_003 -- Job state transitions are monotonic and explicit 
 
 Job state must move forward through **well-defined transitions**.
 
@@ -44,7 +46,7 @@ Every state change must be:
 
 --- 
 
-## INV-004 -- Recovery restores correctness, not just availability
+## INV_004 -- Recovery restores correctness, not just availability
 
 After recovery:
 
@@ -56,7 +58,7 @@ A system that resumes processing but violates correctness is considered failed.
 
 --- 
 
-## INV-005 -- Failure must be detectable 
+## INV_005 -- Failure must be detectable 
 
 Silent failure is the most dangerous failure mode.
 
@@ -74,5 +76,4 @@ For every known failure:
 - Every recovery mechanism must explicitly restore invariants 
 
 If an invariant cannot be enforced, it must be revised -- not ignored.
-
 
