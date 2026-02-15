@@ -52,9 +52,9 @@ flowchart TD
   - zero retries.
 - Idempotency boundary
   - sits at `COMMITTED`
-  - side effects are illegal before it ([INV_001/INV_002](./01_invariants.md)).
-- Transition order mirrors the execution machine from [`02_state_model.md`](./02_state_model.md)
-  - jobs stay derived.
+  - side effects are illegal before it ([INV_001](./01_invariants.md#inv_001----job-execution-is-logically-idempotent)/[INV_002](./01_invariants.md#inv_002----partial-execution-must-not-leave-irreversible-damage)).
+- Transition order mirrors the execution machine from [`state_model`](./02_state_model.md)
+  - jobs stay derived (see [`state_model`](./02_state_model.md)).
 
 ---
 
@@ -79,7 +79,7 @@ Details stay centralized in `docs/01_invariants.md` to avoid drift.
 
 ## Failure hook for FM_001
 
-Injection point: between `IN_PROGRESS` and `COMMITTED`.  
+Injection point: between `IN_PROGRESS` and `COMMITTED` (see [`FM_001 spec`](../failure_modes/FM_001_duplicate_retry/spec.md)).  
 Scenario: 
   - Worker A times out before commit; 
-  - Worker B retries and would double-apply unless the commit boundary short-circuits.
+  - Worker B retries and would double-apply unless the commit boundary short-circuits (policy in [`policies`](./03_policies.md#commit-boundary-idempotency)).

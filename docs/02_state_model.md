@@ -1,6 +1,6 @@
 # State Model 
 
-This document defines the minimum state required to enforce the invariants in [`01_invariants.md`](./01_invariants.md) and to model failures like `FM_001`.
+This document defines the minimum state required to enforce the invariants in [`invariants`](./01_invariants.md) and to model failures like [`FM_001`](../failure_modes/FM_001_duplicate_retry/spec.md).
 
 ---
 
@@ -31,7 +31,7 @@ Key boundaries:
 - **COMMITTED** is the only point where side effects may occur.
 - Job state is derived from durable execution records, never guessed.
 
-For the canonical non-failure flow, see [`docs/04_happy_path.md`](./04_happy_path.md).
+For the canonical non-failure flow, see [`happy_path`](./04_happy_path.md).
 
 The system assumes **at-least-once delivery**. Duplicate delivery is expected.
 
@@ -64,10 +64,10 @@ Minimum fields:
 - `started_at`, `finished_at` (timestamps, nullable)
 
 Executions are durable records used for:
-- idempotency (INV_001)
-- crash consistency (INV_002)
-- auditability (INV_003)
-- recovery (INV_004)
+- idempotency ([INV_001](./01_invariants.md#inv_001----job-execution-is-logically-idempotent))
+- crash consistency ([INV_002](./01_invariants.md#inv_002----partial-execution-must-not-leave-irreversible-damage))
+- auditability ([INV_003](./01_invariants.md#inv_003----job-state-transitions-are-monotonic-and-explicit))
+- recovery ([INV_004](./01_invariants.md#inv_004----recovery-restores-correctness-not-just-availability))
 
 --- 
 
@@ -94,7 +94,7 @@ Execution status is the internal, durable source of truth:
 - `DONE`        : execution finished after commit  
 - `ABORTED`     : lease expired or worker crashed before commit 
 
-**COMMITTED** is the key boundary:
+**COMMITTED** is the key boundary (see policy in [`policies`](./03_policies.md#commit-boundary-idempotency)):
 - Side effects are allowed only at or after COMMITTED.
 - Duplicate executions must short-circuit if a COMMITTED record already exists.
 

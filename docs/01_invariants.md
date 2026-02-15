@@ -14,7 +14,7 @@ A job may be delivered or executed more than once, but its **logical effect** mu
 - Duplicate execution must not corrupt state 
 - Duplicate execution must not amplify side effects 
 - Idempotency must be enforced explicitly, not assumed
-- Job-level completion is **derived** from execution records (see `02_state_model.md`); we do not mutate job state independently of executions.
+- Job-level completion is **derived** from execution records (see [`state_model`](./02_state_model.md)); we do not mutate job state independently of executions.
 
 --- 
 
@@ -25,7 +25,7 @@ If a worker crashes mid-execution:
 - The system must be able to detect partial progress 
 - The system must be able to safely resume or compensate 
 - No irreversible action may occur without durable confirmation
-- Observability comes from the durable execution state machine; job state is an aggregate projection over those records, ensuring crashes are detectable without guessing job status.
+- Observability comes from the durable execution state machine (see [`state_model`](./02_state_model.md)); job state is an aggregate projection over those records, ensuring crashes are detectable without guessing job status.
 
 Crash consistency is mandatory.
 
@@ -76,4 +76,3 @@ For every known failure:
 - Every recovery mechanism must explicitly restore invariants 
 
 If an invariant cannot be enforced, it must be revised -- not ignored.
-

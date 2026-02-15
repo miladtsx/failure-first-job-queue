@@ -8,7 +8,7 @@ Breadth is explicitly rejected in favor of depth.
 
 ## In scope 
 
-This system models: 
+This system models (see [`state_model`](./02_state_model.md) for structure): 
 
 - Asynchronous job processing
 - At-least-once delivery semantics 
@@ -19,7 +19,7 @@ This system models:
 - Recovery after downtime 
 - State reconciliation after failure 
 
-The focus is on **correctness under failure**, not performance or scale.
+The focus is on **correctness under failure** (see invariants in [`invariants`](./01_invariants.md)), not performance or scale.
 
 --- 
 
@@ -57,4 +57,3 @@ Every failure added to this system must satisfy **at least one** of the followin
 Failure is not an exception.
 
 Failure is the **normal operating condition** under which the system must remain correct.
-

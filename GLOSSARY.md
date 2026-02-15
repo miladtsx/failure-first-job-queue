@@ -1,0 +1,13 @@
+# Glossary
+- **Invariant (`INV_XXX`)**: non‑negotiable rule that must hold before, during, and after failure (see [`invariants`](./docs/01_invariants.md)).
+- **Failure Mode (`FM_XXX`)**: reproducible scenario that violates specific invariants and is proven by paired repro/prevent tests.
+- **Job**: logical unit of work submitted to the queue; may be delivered multiple times but its effect must appear at most once.
+- **Execution**: one leased attempt to run a job (identified by `exec_id`), tracked durably for detection and recovery.
+- **Lease**: time‑boxed right to execute a job; when it expires the same job can be re‑leased, producing duplicate executions if not guarded.
+- **Effect**: the logical side effect a job intends to apply (e.g., write, emit); correctness is measured by effect count per job.
+- **Idempotency boundary / `COMMITTED`**: durable gate where the first successful execution records commit; later attempts must detect it and no-op (enforces `INV_001`). See [commit boundary](docs/03_policies.md#commit-boundary-idempotency).
+- **Commit boundary (policy)**: mechanism that enforces the idempotency boundary—side effects happen only when the execution reaches `COMMITTED`. See [policies](docs/03_policies.md#commit-boundary-idempotency).
+- **Reconcile (policy)**: scans expired leases, marks abandoned executions `ABORTED`, and re-queues safely to preserve `INV_002`/`INV_004`. See [policies](docs/03_policies.md#reconcile).
+- **Retry budget / circuit breaker (policy)**: caps retries per job/time window to surface failure signals and protect `INV_005`. See [policies](docs/03_policies.md#retry-budget--circuit-breaker).
+- **Fault injector**: deterministic toggle used in scenarios/tests to force crashes or disable safeguards, ensuring failures are reproducible.
+- **Deterministic clock**: test‑controlled time source (`runtime/clock.py`) used instead of wall clock to keep scenarios and recovery logic deterministic.
