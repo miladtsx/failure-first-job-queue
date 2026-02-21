@@ -9,7 +9,7 @@ sync:
 
 # Run cross-cutting happy-path plus all FM tests
 test:
-	$(PYTEST) tests failure_modes/FM_001_duplicate_retry/tests
+	$(PYTEST)
 
 # Reproduce FM_001 (expected failure in baseline scenario)
 test-fm1:

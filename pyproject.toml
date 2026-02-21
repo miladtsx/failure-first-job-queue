@@ -1,0 +1,36 @@
+[project]
+name = "autonomy-governance-lab"
+version = "0.1.0"
+description = "Explores governance and failure modeling for autonomous task execution systems."
+readme = "README.md"
+requires-python = ">=3.11"
+
+[dependency-groups]
+dev = ["pytest>=9.0"]
+
+[build-system]
+requires = ["setuptools>=65.5", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+# Explicitly list the packages we want from the flat layout to avoid accidental pickup
+# of docs/tests/etc. This fixes editable installs under uv/PEP 517.
+include = [
+    "runtime",
+    "runtime.*",
+    "faults",
+    "faults.*",
+    "policies",
+    "policies.*",
+    "failure_modes",
+    "failure_modes.*",
+    "harness",
+    "harness.*",
+]
+exclude = ["tests*", "docs*", "baselines*", "postmortems*"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests", "failure_modes"]
+python_files = ["test_*.py"]
+addopts = ["-ra"]
